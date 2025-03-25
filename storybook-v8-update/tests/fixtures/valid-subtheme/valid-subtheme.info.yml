@@ -1,0 +1,4 @@
+name: Valid Test Subtheme
+type: theme
+base theme: civictheme
+description: 'A valid test subtheme for testing'
