@@ -1,0 +1,4 @@
+name: Invalid Base Subtheme
+type: theme
+base theme: claro
+description: 'A subtheme with incorrect base theme'

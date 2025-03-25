@@ -1,0 +1,4 @@
+name: No Components Subtheme
+type: theme
+base theme: civictheme
+description: 'A subtheme missing the components directory'
