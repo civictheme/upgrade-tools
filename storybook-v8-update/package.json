@@ -1,0 +1,22 @@
+{
+  "name": "civictheme-storybook-v8-update",
+  "version": "0.1.0",
+  "description": "Script is to guide you through updating your sub-theme front-end build processes to the latest CivicTheme system.",
+  "main": "update-storybook.mjs",
+  "scripts": {
+    "update-storybook": "node update-storybook.mjs",
+    "test": "jest",
+    "test:integration": "tests/integration/run-test.sh"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "glob": "^11.0.1",
+    "inquirer": "^9.2.12",
+    "inquirer-autocomplete-prompt": "^3.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "author": "Alan Cole / Richard Gaunt",
+  "license": "MIT"
+}
