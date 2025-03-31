@@ -174,6 +174,20 @@ If it is an override compare against the CivicTheme component if it is an overri
 
 If its a new component, look to other stories and check to see what the exports are for each. Add in what is missing.
 
+### Drupal Theme CSS Issues (but not in Storybook)
+
+If you are finding that your `body` tag has a margin, this indicates that you need to update your Drupal Theme CSS.
+These overrides are set in `<sub-theme>/assets/sass` folder. 
+Compare the contents of this folder with: `civictheme/civictheme_starter_kit/assets/sass` and add any missing overrides.
+In the above example the `assets/sass/page/_page.scss` was added in 1.9 which needs to be added to the 
+`<sub-theme>/assets/sass` folder.
+
+### Case Sensitivity of assets folders
+
+If you update and you are finding that sub-theme fonts or other assets are not being found. Be aware that webpack
+was resolving directories even when the directories were not matching due to case differences.
+
+Check your SASS references to assets and the directories in your `assets` sub-theme folder for any differences.
 
 ### Odd artifacts from LLM
 The story file is completely commented out, or in error.
