@@ -97,6 +97,11 @@ After running the tool:
 - The tool only converts `.stories.js` files, not TypeScript stories
 - The tools is a helper not a solution, it is not intended to be an end to end update script
 - Support and discussions can be had on the #civictheme-designsystem slack channel 
+## Required Manual Update
+
+In the `build.js` added to your sub-theme you need to check the line:
+`const DIR_CIVICTHEME            = fullPath('../../contrib/civictheme/')` (line 81) with the relative
+path to your civictheme (we plan to automate this step).
 
 ## Manual Updates / Updating stories that have not been automatically converted
 
