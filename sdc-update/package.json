@@ -1,0 +1,18 @@
+{
+  "name": "upgrade-sdc",
+  "version": "1.0.0",
+  "description": "Performs the upgrade of the CivicTheme to Single Directory Components.",
+  "author": "Alan Cole / Richard Gaunt",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "bash run.sh"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.3",
+    "glob": "^11.0.1",
+    "js-yaml": "^4.1.0",
+    "p-throttle": "^7.0.0",
+    "yaml": "^2.7.0"
+  }
+}
