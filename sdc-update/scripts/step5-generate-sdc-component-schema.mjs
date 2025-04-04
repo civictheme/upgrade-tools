@@ -83,7 +83,6 @@ async function convertJsonSchemaToSDCSchema(componentName, componentDirectory, j
             sdcSchema.slots[key] = {
                 title: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '), // Capitalize and format slot name
                 description: value.description,
-                required: false // Default to false, can be overridden if needed
             };
         });
     }
