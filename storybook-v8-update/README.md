@@ -19,9 +19,11 @@ This tool automates migrating CivicTheme sub-themes to Storybook v8:
 
 ## Installation
 
+Clone the upgrade-tools repository into any local folder on your computer (e.g. `~/documents`).
+
 ```bash
-git clone https://github.com/your-org/civictheme-upgrade-tools.git
-cd civictheme-upgrade-tools/storybook-update
+git clone git@github.com:civictheme/upgrade-tools.git
+cd upgrade-tools/storybook-v8-update
 npm install
 ```
 
