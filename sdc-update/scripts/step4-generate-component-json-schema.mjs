@@ -1,11 +1,9 @@
-/* eslint-disable no-console */
+
 import { promises as fs } from 'fs';
 import path from 'path';
 // import dotenv from 'dotenv';
-// eslint-disable-next-line import/extensions
-import { LLMHandler } from './lib/llm-handler.js';
-// eslint-disable-next-line import/extensions
-import { getAllComponentFiles } from './lib/components.js';
+import { LLMHandler } from './lib/llm-handler';
+import { getAllComponentFiles } from './lib/components';
 
 const SYSTEM_PROMPT = `
 You are a Twig template analyzer. For each Twig template provided:
@@ -62,19 +60,19 @@ Rules:
 `;
 
 class JsonSchemaGenerator extends LLMHandler {
-
   /**
    * Whether the component has already been processed.
    *
    * @param outputPath
    * @return {Promise<boolean>}
    */
-  // eslint-disable-next-line class-methods-use-this
+
   async isComponentAlreadyProcessed(outputPath) {
     try {
       await fs.access(outputPath, fs.constants.F_OK);
       return true;
     } catch (e) {
+      console.log(e.message);
       return false;
     }
   }
@@ -90,7 +88,7 @@ class JsonSchemaGenerator extends LLMHandler {
       this.results = {
         successful: [],
         failed: [],
-      }
+      };
       const twigFiles = await getAllComponentFiles(directoryPath);
       let processed = 0;
       for (const file of twigFiles) {
@@ -100,29 +98,29 @@ class JsonSchemaGenerator extends LLMHandler {
             this.options.outputDir,
             relativePath.replace('.twig', '.schema.json'),
           );
-          // eslint-disable-next-line no-await-in-loop
+
           if (await this.isComponentAlreadyProcessed(outputPath)) {
             console.log(`Skipping ${file}... already processed`);
             continue;
           }
-          // eslint-disable-next-line no-await-in-loop
+
           const templateContent = await fs.readFile(file, 'utf8');
 
           console.log(`Processing ${file}...`);
 
-          // eslint-disable-next-line no-await-in-loop
+
           const messages = [
             {
               role: 'user',
               content: `Extract the props and blocks from this Twig template into JSON:\n\n${templateContent}`.trim(),
             },
           ];
-          // eslint-disable-next-line no-await-in-loop
+
           const jsonSchema = await this.analyze(messages);
 
           // Validate JSON
           JSON.parse(jsonSchema); // Will throw if invalid JSON
-          // eslint-disable-next-line no-await-in-loop
+
           await this.output(jsonSchema, outputPath);
           this.results.successful.push(file);
           console.log(`✓ Successfully processed ${file}`);
@@ -149,11 +147,10 @@ class JsonSchemaGenerator extends LLMHandler {
    * @param outputPath - path to save the file.
    * @return {Promise<void>}
    */
-  // eslint-disable-next-line class-methods-use-this
+
   async output(outputFileContent, outputPath) {
-    // eslint-disable-next-line no-await-in-loop
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
-    // eslint-disable-next-line no-await-in-loop
+
     await fs.writeFile(outputPath, outputFileContent, 'utf8');
   }
 }

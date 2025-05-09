@@ -35,7 +35,7 @@ export class LLMHandler {
    * @return {Promise<string>} Promise that resolves with the output file.
    * @throws {Error} If an API error occurs during the analysis process.
    */
-  // eslint-disable-next-line no-unused-vars,class-methods-use-this
+
   async analyze(messages) {
     try {
       const body = {
@@ -63,7 +63,7 @@ export class LLMHandler {
    * @param {string} directoryPath - Directory to component directory.
    * @return {Promise<Object>} Report on success / failures of process.
    */
-  // eslint-disable-next-line no-unused-vars,class-methods-use-this
+  // eslint-disable-next-line no-unused-vars
   async process(directoryPath) {
     throw new Error('Implement method in subclass');
   }
@@ -75,7 +75,7 @@ export class LLMHandler {
    * @param {string} outputPath - path to save the file.
    * @return {Promise<void>}
    */
-  // eslint-disable-next-line class-methods-use-this,no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   async output(outputFileContent, outputPath) {
     throw new Error('Implement method in subclass');
   }
@@ -83,7 +83,7 @@ export class LLMHandler {
   /**
    * Method to report on the process.
    */
-  // eslint-disable-next-line class-methods-use-this
+
   report() {
     console.log('\nProcessing Summary:');
     console.log(`Successfully processed: ${this.results.successful.length} files`);

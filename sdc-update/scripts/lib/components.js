@@ -2,7 +2,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 /**
- *
+ * @file
+ * File for getting SDC component files.
  */
 
 
@@ -20,59 +21,58 @@ import path from 'path';
  * or rejects if an error occurs.
  */
 export async function getComponentDirectories(directoryPath = 'components') {
-    directoryPath = path.join(process.cwd(), directoryPath);
-    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
-    const files = await Promise.all(entries.map(async (entry) => {
-        const fullPath = path.join(directoryPath, entry.name);
-        if (entry.isDirectory()) {
-            // Recursively search subdirectories
-            return getAllComponentFiles(fullPath);
-        }
-        // Check if it's a twig file but not a stories.twig file
-        if (entry.isFile()
+  directoryPath = path.join(process.cwd(), directoryPath);
+  const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+  const files = await Promise.all(entries.map(async (entry) => {
+    const fullPath = path.join(directoryPath, entry.name);
+    if (entry.isDirectory()) {
+      // Recursively search subdirectories
+      return getAllComponentFiles(fullPath);
+    }
+    // Check if it's a twig file but not a stories.twig file
+    if (entry.isFile()
             && entry.name.endsWith('.twig')
             && !entry.name.endsWith('.stories.twig')) {
-            // Get the basename without extension
-            const componentName = path.basename(entry.name, '.twig');
-            // Get the directory path
-            const componentDirectory = path.dirname(fullPath);
-            // Return an object with the component name and directory
-            return { [componentName]: componentDirectory };
-        }
-        return {};
-    }));
+      // Get the basename without extension
+      const componentName = path.basename(entry.name, '.twig');
+      // Get the directory path
+      const componentDirectory = path.dirname(fullPath);
+      // Return an object with the component name and directory
+      return { [componentName]: componentDirectory };
+    }
+    return {};
+  }));
 
-    return files.flat().filter(obj => Object.keys(obj).length > 0)
-        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+  return files.flat().filter(obj => Object.keys(obj).length > 0)
+    .reduce((acc, curr) => ({ ...acc, ...curr }), {});
 }
 
 export async function getAllComponentFiles(directoryPath) {
-    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
-    if (typeof entries === 'undefined' || typeof entries === null || entries.length === 0) {
-        return [];
+  const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+  if (typeof entries === 'undefined' || entries === null || entries.length === 0) {
+    return [];
+  }
+  const files = await Promise.all(entries.map(async (entry) => {
+    const fullPath = path.join(directoryPath, entry.name);
+
+    if (entry.isDirectory()) {
+      // Recursively search subdirectories
+      return getAllComponentFiles(fullPath);
     }
-    const files = await Promise.all(entries.map(async (entry) => {
-        const fullPath = path.join(directoryPath, entry.name);
 
-        if (entry.isDirectory()) {
-            // Recursively search subdirectories
-            return getAllComponentFiles(fullPath);
-        }
-
-        // Check if it's a twig file but not a stories.twig file
-        if (entry.isFile()
+    // Check if it's a twig file but not a stories.twig file
+    if (entry.isFile()
             && entry.name.endsWith('.twig')
             && !entry.name.endsWith('.stories.twig')) {
-            return fullPath;
-        }
+      return fullPath;
+    }
 
-        return [];
-    }));
+    return [];
+  }));
 
-    // Flatten the array and remove empty entries
-    return files.flat().filter(Boolean);
+  // Flatten the array and remove empty entries
+  return files.flat().filter(Boolean);
 }
-
 
 
 /**
@@ -84,26 +84,26 @@ export async function getAllComponentFiles(directoryPath) {
  *   - `filePath`: The absolute path to the schema file.
  *   - `directoryPath`: The directory containing the schema file.
  */
-export async function getAllSchemaFiles (basePath = path.join(process.cwd(), 'schema')) {
-    const schemaFiles = {};
-    const entries = await fs.readdir(basePath, {withFileTypes: true}); // Use `fs.promises` for async operations.
+export async function getAllSchemaFiles(basePath = path.join(process.cwd(), 'schema')) {
+  const schemaFiles = {};
+  const entries = await fs.readdir(basePath, { withFileTypes: true }); // Use `fs.promises` for async operations.
 
-    for (const entry of entries) {
-        const entryPath = path.join(basePath, entry.name);
+  for (const entry of entries) {
+    const entryPath = path.join(basePath, entry.name);
 
-        if (entry.isDirectory()) {
-            // Recurse into the directory
-            const childSchemaFiles = await getAllSchemaFiles(entryPath);
-            Object.assign(schemaFiles, childSchemaFiles);
-        } else if (entry.isFile() && entry.name.endsWith('.schema.json')) {
-            const componentName = path.basename(entry.name, '.schema.json'); // Get the component name without extension
-            schemaFiles[componentName] = {
-                componentName,
-                filePath: entryPath,
-                directoryPath: path.dirname(entryPath)
-            };
-        }
+    if (entry.isDirectory()) {
+      // Recurse into the directory
+      const childSchemaFiles = await getAllSchemaFiles(entryPath);
+      Object.assign(schemaFiles, childSchemaFiles);
+    } else if (entry.isFile() && entry.name.endsWith('.schema.json')) {
+      const componentName = path.basename(entry.name, '.schema.json'); // Get the component name without extension
+      schemaFiles[componentName] = {
+        componentName,
+        filePath: entryPath,
+        directoryPath: path.dirname(entryPath)
+      };
     }
+  }
 
-    return schemaFiles;
+  return schemaFiles;
 }
