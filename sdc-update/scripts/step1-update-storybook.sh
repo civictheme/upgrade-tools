@@ -29,16 +29,17 @@ elif [ ! -d "$SUBTHEME_DIRECTORY" ]; then
 fi
 
 # Step 2: Pull the civictheme-monorepo
-log_message "Cloning monorepo-drupal..." "📥"
-if rm -rf monorepo-drupal; then
-    log_message "Removed existing monorepo-drupal directory" "🗑️"
-fi
-# Tag before we next update.
-if git clone -b 1.11.0 git@github.com:civictheme/monorepo-drupal.git; then
-    log_message "Successfully cloned monorepo-drupal" "✅"
+if [ -d "monorepo-drupal" ]; then
+    log_message "monorepo-drupal directory already exists, skipping clone" "✔️"
 else
-    log_message "Failed to clone monorepo-drupal" "❌"
-    exit 1
+    log_message "Cloning monorepo-drupal..." "📥"
+    # Tag before we next update.
+    if git clone -b 1.11.0 git@github.com:civictheme/monorepo-drupal.git; then
+        log_message "Successfully cloned monorepo-drupal" "✅"
+    else
+        log_message "Failed to clone monorepo-drupal" "❌"
+        exit 1
+    fi
 fi
 
 NEW_CIVIC_DIR="$(pwd)/monorepo-drupal/web/themes/contrib/civictheme"

@@ -45,7 +45,9 @@ Rules:
 - Use valid JSON Schema types in props (string, boolean, number, integer, array, object)
 - DO NOT convert Twig blocks to slots - only include slots if they exist in the original CivicTheme schema
 - Include all documented properties and their descriptions
-- Only return valid YAML, no additional text or markdown code blocks
+- Only return valid YAML, no additional text
+- DO NOT wrap the YAML in markdown code blocks (no ```yaml or ```)
+- Return the raw YAML content directly
 - Extract component name from filename or comments if available
 - Set status to "stable" by default
 - Only include libraryOverrides if you detect that the component has associated JS files
@@ -64,6 +66,16 @@ Rules:
 `;
 
 class JsonSchemaGenerator extends LlmHandler {
+  /**
+   * Strips markdown code blocks from YAML content
+   * @param {string} content - The content that may contain code blocks
+   * @return {string} - The content without code blocks
+   */
+  stripCodeBlocks(content) {
+    // Remove ```yaml or ```yml at the start and ``` at the end
+    return content.replace(/^```(?:yaml|yml)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+  }
+
   /**
    * Whether the component has already been processed.
    *
@@ -152,14 +164,17 @@ ${templateContent}`.trim();
             },
           ];
 
-          const yamlSchema = await this.analyze(messages);
+          let yamlSchema = await this.analyze(messages);
+
+          // Strip any markdown code blocks that might have been added
+          yamlSchema = this.stripCodeBlocks(yamlSchema);
 
           // Validate YAML by parsing it
           yaml.load(yamlSchema);
-          
+
           // Save YAML directly
           await this.output(yamlSchema, outputPath);
-          
+
           this.results.successful.push(file);
           console.log(`✓ Successfully processed ${file}`);
         } catch (error) {
@@ -308,7 +323,7 @@ async function main() {
   const analyzer = new JsonSchemaGenerator({
     system_prompt: SYSTEM_PROMPT,
     outputDir: path.join(process.cwd(), 'schema'),
-    inputDir: path.join(process.env.CIVICTHEME_UIKIT_PATH, 'components'),
+    inputDir: path.join(process.env.SUBTHEME_DIRECTORY, 'components'),
     rateLimit: 3,
     rateLimitInterval: 1000,
     processLimit: 100,
@@ -316,8 +331,8 @@ async function main() {
     model: process.env.ANTHROPIC_MODEL,
     cache_control: true,
   });
-
-  analyzer.process('components');
+  const componentPath = path.join(process.env.SUBTHEME_DIRECTORY, 'components');
+  analyzer.process(componentPath);
   analyzer.report();
 }
 
