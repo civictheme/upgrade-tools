@@ -171,13 +171,52 @@ ${templateContent}`.trim();
           // Validate YAML by parsing it
           const parsedYaml = yaml.load(yamlSchema);
 
-          // If this is an override, ensure replaces property exists
+          // If this is an override, ensure replaces property exists and handle slots
           if (existingSchema) {
             const componentName = path.basename(file, '.twig');
+            const existingParsedYaml = yaml.load(existingSchema);
+            
+            // Ensure replaces property exists
             if (!parsedYaml.replaces) {
               parsedYaml.replaces = `civictheme:${componentName}`;
-              yamlSchema = yaml.dump(parsedYaml, { lineWidth: -1 });
             }
+
+            // Check if existing schema has slots
+            if (existingParsedYaml.slots && Object.keys(existingParsedYaml.slots).length > 0) {
+              // Initialize slots if not present
+              if (!parsedYaml.slots) {
+                parsedYaml.slots = {};
+              }
+
+              // Check each slot from the original schema
+              for (const [slotName, slotData] of Object.entries(existingParsedYaml.slots)) {
+                // If this slot was incorrectly added as a prop, move it to slots
+                if (parsedYaml.props?.properties && parsedYaml.props.properties[slotName]) {
+                  console.log(`  Moving ${slotName} from props to slots`);
+                  
+                  // Copy to slots with proper format
+                  parsedYaml.slots[slotName] = {
+                    title: slotData.title || slotName.charAt(0).toUpperCase() + slotName.slice(1).replace(/_/g, ' '),
+                    description: slotData.description || parsedYaml.props.properties[slotName].description || ''
+                  };
+                  
+                  // Remove from props
+                  delete parsedYaml.props.properties[slotName];
+                }
+                // If slot exists in original but not in generated, preserve it
+                else if (!parsedYaml.slots[slotName]) {
+                  parsedYaml.slots[slotName] = slotData;
+                }
+              }
+
+              // Clean up empty props object if needed
+              if (parsedYaml.props?.properties && Object.keys(parsedYaml.props.properties).length === 0) {
+                delete parsedYaml.props;
+              }
+            }
+
+            // Re-serialize if we made changes
+            yamlSchema = yaml.dump(parsedYaml, { lineWidth: -1 });
           }
 
           // Save YAML directly
