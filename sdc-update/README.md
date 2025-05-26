@@ -69,6 +69,17 @@ to component directories
 
 ## Troubleshooting
 
+### Components using 'extends'
+
+SDC does not support the concept of extending components. This is however a feature of twig
+but will cause problems in that you will not bring across styles from the component you are
+extending.
+
+You should check to see whether you are extending any base components and if you are we
+recommend copying the base component in and overriding directly the blocks you are extending
+and move the css that you are missing into your component.
+
+
 ### Check the logs if any errors in running
 
 Every step of this update script is logged in `.logs`. Review this log for any unexpected results or breaks in the

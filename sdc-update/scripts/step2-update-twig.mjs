@@ -93,7 +93,11 @@ export function updateBlockNames(twigFiles) {
     matchesArray.forEach(match => {
       const idx = match.index;
       const str = match[0];
-      updateData = updateData.substring(0, idx) + `${str}_block` + updateData.substring(idx + str.length);
+      
+      // Check if the block already ends with _block
+      if (!str.endsWith('_block')) {
+        updateData = updateData.substring(0, idx) + `${str}_block` + updateData.substring(idx + str.length);
+      }
     });
 
     fs.writeFileSync(filePath, updateData, 'utf8');
