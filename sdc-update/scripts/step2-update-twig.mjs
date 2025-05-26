@@ -103,7 +103,7 @@ export function updateBlockNames(twigFiles) {
 function getComponentNamespace() {
   const getComponentName = (component) => component.split('/').pop().split('.').shift();
 
-  const coreComponents = globSync(`**/*.twig`, { cwd: path.resolve(SUBTHEME_DIRECTORY, '.components-civictheme') }).sort();
+  const coreComponents = globSync(`**/*.twig`, { cwd: path.resolve(NEW_CIVIC_DIR, 'components') }).sort();
   const subComponents = globSync(`**/*.twig`, { cwd: path.resolve(SUBTHEME_DIRECTORY, 'components') }).sort();
   const newComponents = subComponents.filter(component => !coreComponents.includes(component));
   const overriddenComponents = subComponents.filter(component => coreComponents.includes(component));

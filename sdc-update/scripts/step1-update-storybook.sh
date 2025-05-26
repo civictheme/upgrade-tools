@@ -45,6 +45,17 @@ NEW_CIVIC_DIR="$(pwd)/monorepo-drupal/web/themes/contrib/civictheme"
 log_message "SUBTHEME_DIRECTORY: $SUBTHEME_DIRECTORY" "📁"
 log_message "NEW_CIVIC_DIR: $NEW_CIVIC_DIR" "📁"
 
+# Step 2.5: Run npm install in the cloned civictheme directory to generate components
+log_message "Running npm install in civictheme directory to generate components..." "📦"
+cd "$NEW_CIVIC_DIR" || exit 1
+if npm install; then
+    log_message "Successfully ran npm install in civictheme directory" "✅"
+else
+    log_message "Failed to run npm install in civictheme directory" "❌"
+    exit 1
+fi
+cd - > /dev/null || exit 1
+
 # Step 3: Remove old files
 log_message "Removing old files from subtheme..." "🗑️"
 for file in "node_modules" "package-lock.json"; do
