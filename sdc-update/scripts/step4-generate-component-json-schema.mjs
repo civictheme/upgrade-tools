@@ -1,6 +1,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import yaml from 'js-yaml';
 // import dotenv from 'dotenv';
 import { LlmHandler } from './lib/llm-handler.mjs';
 import { getAllComponentFiles } from './lib/components.mjs';
@@ -72,7 +73,6 @@ class JsonSchemaGenerator extends LlmHandler {
       await fs.access(outputPath, fs.constants.F_OK);
       return true;
     } catch (e) {
-      console.log(e.message);
       return false;
     }
   }
@@ -96,7 +96,7 @@ class JsonSchemaGenerator extends LlmHandler {
           const relativePath = path.relative(directoryPath, file);
           const outputPath = path.join(
             this.options.outputDir,
-            relativePath.replace('.twig', '.schema.json'),
+            relativePath.replace('.twig', '.component.yml'),
           );
 
           if (await this.isComponentAlreadyProcessed(outputPath)) {
@@ -118,10 +118,21 @@ class JsonSchemaGenerator extends LlmHandler {
 
           const jsonSchema = await this.analyze(messages);
 
-          // Validate JSON
-          JSON.parse(jsonSchema); // Will throw if invalid JSON
-
-          await this.output(jsonSchema, outputPath);
+          // Validate and parse JSON
+          const parsedJsonSchema = JSON.parse(jsonSchema);
+          
+          // Extract component name and directory
+          const componentName = path.basename(file, '.twig');
+          const componentDirectory = path.dirname(file);
+          
+          // Convert to SDC schema
+          const sdcSchema = await this.convertJsonSchemaToSDCSchema(componentName, componentDirectory, parsedJsonSchema);
+          
+          // Save YAML version only
+          const yamlOutputPath = outputPath.replace('.schema.json', '.component.yml');
+          const yamlContent = yaml.dump(sdcSchema, { lineWidth: -1 });
+          await this.output(yamlContent, yamlOutputPath);
+          
           this.results.successful.push(file);
           console.log(`✓ Successfully processed ${file}`);
         } catch (error) {
@@ -152,6 +163,111 @@ class JsonSchemaGenerator extends LlmHandler {
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
     await fs.writeFile(outputPath, outputFileContent, 'utf8');
+  }
+
+
+  /**
+   * Converts a JSON Schema object to a Drupal SDC Schema structure
+   * @param {string} componentName - The name of the component
+   * @param {string} componentDirectory - The path to the component directory
+   @param {Object} jsonSchema - The JSON Schema object to convert
+
+   * @returns {Object} - The SDC Schema structure (ready to be converted to YAML)
+   */
+  async convertJsonSchemaToSDCSchema(componentName, componentDirectory, jsonSchema) {
+    const sdcSchema = {
+      $schema: 'https://git.drupalcode.org/project/drupal/-/raw/10.3.x/core/assets/schemas/v1/metadata.schema.json'
+    };
+
+    // Handle metadata
+    if (jsonSchema.properties?.metadata?.properties) {
+      const metadata = jsonSchema.properties.metadata.properties;
+
+      if (metadata.name?.description) {
+        sdcSchema.name = metadata.name.description;
+      }
+
+      sdcSchema.status = 'stable';
+
+      if (metadata.description?.description) {
+        sdcSchema.description = metadata.description.description;
+      }
+    }
+
+    if (jsonSchema.properties?.props?.properties) {
+      sdcSchema.props = {
+        type: 'object',
+        properties: {}
+      };
+
+      const props = jsonSchema.properties.props.properties;
+
+      // Convert each property
+      Object.entries(props).forEach(([key, value]) => {
+        sdcSchema.props.properties[key] = {
+          type: value.type,
+          title: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+          description: value.description
+        };
+
+        // Handle enums
+        if (value.enum) {
+          sdcSchema.props.properties[key].enum = value.enum;
+        }
+
+        // Handle default values
+        if (value.default !== undefined) {
+          sdcSchema.props.properties[key].default = value.default;
+        }
+
+        // Handle arrays
+        if (value.type === 'array' && value.items) {
+          sdcSchema.props.properties[key].items = {
+            type: value.items.type
+          };
+
+          // If array items have properties (for objects)
+          if (value.items.properties) {
+            sdcSchema.props.properties[key].items.properties = value.items.properties;
+          }
+        }
+      });
+    }
+
+    // Handle slots
+    if (jsonSchema.properties?.slots?.properties) {
+      sdcSchema.slots = {};
+
+      Object.entries(jsonSchema.properties.slots.properties).forEach(([key, value]) => {
+        sdcSchema.slots[key] = {
+          title: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '), // Capitalize and format slot name
+          description: value.description,
+        };
+      });
+    }
+
+    // Check for component JS file and add to library overrides if it exists
+    const jsFilePath = path.join(componentDirectory, `${componentName}.js`);
+    try {
+      await fs.access(jsFilePath);
+      sdcSchema.libraryOverrides = {
+        js: {
+          [`${componentName}.js`]: {}
+        }
+      };
+    } catch {
+      // no JS library
+    }
+
+    // Merge with existing library overrides if present in the JSON schema
+    if (jsonSchema.properties?.libraryOverrides?.properties) {
+      sdcSchema.libraryOverrides = {
+        ...sdcSchema.libraryOverrides,
+        ...jsonSchema.properties.libraryOverrides.properties
+      };
+    }
+
+    return sdcSchema;
   }
 }
 
