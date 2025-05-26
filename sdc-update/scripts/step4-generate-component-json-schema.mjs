@@ -46,7 +46,7 @@ Rules:
 - DO NOT convert Twig blocks to slots - only include slots if they exist in the original CivicTheme schema
 - Include all documented properties and their descriptions
 - Only return valid YAML, no additional text
-- DO NOT wrap the YAML in markdown code blocks (no ```yaml or ```)
+- DO NOT wrap the YAML in markdown code blocks (no \`\`\`yaml or \`\`\`)
 - Return the raw YAML content directly
 - Extract component name from filename or comments if available
 - Set status to "stable" by default
