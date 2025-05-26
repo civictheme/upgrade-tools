@@ -108,11 +108,8 @@ class JsonSchemaGenerator extends LlmHandler {
       let processed = 0;
       for (const file of twigFiles) {
         try {
-          const relativePath = path.relative(directoryPath, file);
-          const outputPath = path.join(
-            this.options.outputDir,
-            relativePath.replace('.twig', '.component.yml'),
-          );
+          // Save component.yml in the same directory as the twig file
+          const outputPath = file.replace('.twig', '.component.yml');
 
           if (await this.isComponentAlreadyProcessed(outputPath)) {
             console.log(`Skipping ${file}... already processed`);
@@ -322,7 +319,6 @@ async function main() {
 
   const analyzer = new JsonSchemaGenerator({
     system_prompt: SYSTEM_PROMPT,
-    outputDir: path.join(process.cwd(), 'schema'),
     inputDir: path.join(process.env.SUBTHEME_DIRECTORY, 'components'),
     rateLimit: 3,
     rateLimitInterval: 1000,

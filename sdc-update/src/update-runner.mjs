@@ -30,38 +30,22 @@ const UPDATE_STEPS = [
     description: 'Updates info.yml, libraries.yml, package.json, and adds SDC namespacing to Twig templates',
     detail: 'Modifies theme files to support SDC structure and adds proper namespacing to Twig templates'
   },
-  // {
-  //   id: 'step3',
-  //   name: 'Clean up temporary files',
-  //   emoji: '🧹',
-  //   script: './scripts/step3-remove-monorepo.sh',
-  //   description: 'Removes pulled repository files after update',
-  //   detail: 'Cleans up any temporary files created during the update process'
-  // },
   {
-    id: 'step4',
+    id: 'step3',
     name: 'Generate Component YML from Twig templates',
     emoji: '🧠',
     script: './scripts/step4-generate-component-json-schema.mjs',
     description: 'Uses Claude AI to analyze Twig templates and generate JSON schema which is then converted to YML',
     detail: 'Analyzes component templates with Claude AI to create JSON schemas that define component properties'
   },
-  // {
-  //   id: 'step5',
-  //   name: 'Convert JSON schemas to SDC YAML',
-  //   emoji: '🔄',
-  //   script: './scripts/step5-generate-sdc-component-schema.mjs',
-  //   description: 'Converts JSON schemas to SDC YAML format',
-  //   detail: 'Transforms the JSON schemas to Drupal SDC YAML format for component definition'
-  // },
-  // {
-  //   id: 'step6',
-  //   name: 'Move generated YAML files to subtheme',
-  //   emoji: '📦',
-  //   script: './scripts/step6-move-yml.sh',
-  //   description: 'Moves the generated SDC YAML files back into the subtheme components directory',
-  //   detail: 'Places all generated component definition files in the correct location within your subtheme'
-  // }
+  {
+    id: 'step4',
+    name: 'Clean up temporary files',
+    emoji: '🧹',
+    script: './scripts/step3-remove-monorepo.sh',
+    description: 'Removes pulled repository files after update',
+    detail: 'Cleans up any temporary files created during the update process'
+  }
 ];
 
 /**
