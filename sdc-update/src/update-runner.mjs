@@ -38,14 +38,14 @@ const UPDATE_STEPS = [
   //   description: 'Removes pulled repository files after update',
   //   detail: 'Cleans up any temporary files created during the update process'
   // },
-  // {
-  //   id: 'step4',
-  //   name: 'Generate JSON schemas from Twig templates',
-  //   emoji: '🧠',
-  //   script: './scripts/step4-generate-component-json-schema.mjs',
-  //   description: 'Uses Claude AI to analyze Twig templates and generate JSON schemas',
-  //   detail: 'Analyzes component templates with Claude AI to create JSON schemas that define component properties'
-  // },
+  {
+    id: 'step4',
+    name: 'Generate Component YML from Twig templates',
+    emoji: '🧠',
+    script: './scripts/step4-generate-component-json-schema.mjs',
+    description: 'Uses Claude AI to analyze Twig templates and generate JSON schema which is then converted to YML',
+    detail: 'Analyzes component templates with Claude AI to create JSON schemas that define component properties'
+  },
   // {
   //   id: 'step5',
   //   name: 'Convert JSON schemas to SDC YAML',

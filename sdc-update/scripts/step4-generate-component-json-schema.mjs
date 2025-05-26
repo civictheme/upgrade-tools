@@ -7,57 +7,56 @@ import { LlmHandler } from './lib/llm-handler.mjs';
 import { getAllComponentFiles } from './lib/components.mjs';
 
 const SYSTEM_PROMPT = `
-You are a Twig template analyzer. For each Twig template provided:
+You are a Drupal Single Directory Components (SDC) analyzer. For each Twig template provided:
 1. Extract all documented variables/props and blocks
-2. Return the data in JSON Schema format with this exact structure:
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ComponentName",
-  "type": "object",
-  "properties": {
-    "metadata": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Component name"
-        },
-        "description": {
-          "type": "string",
-          "description": "Component description"
-        },
-        "version": {
-          "type": "string",
-          "default": "1.9.0"
-        },
-        "framework": {
-          "type": "string",
-          "enum": ["twig"]
-        }
-      }
-    },
-    "props": {
-      "type": "object",
-      "properties": {
-        // Extract all props here with their types and descriptions
-      }
-    },
-    "slots": {
-      "type": "object",
-      "properties": {
-        // Extract all Twig blocks here as slots
-      }
-    }
-  }
-}
+2. Return the data in Drupal SDC YAML format with this exact structure:
+
+\`\`\`yaml
+$schema: https://git.drupalcode.org/project/drupal/-/raw/10.3.x/core/assets/schemas/v1/metadata.schema.json
+name: Component Name
+status: stable
+description: Component description
+props:
+  type: object
+  properties:
+    # Extract all props here with their types and descriptions
+    example_prop:
+      type: string
+      title: Example Prop
+      description: Description of the prop
+      default: default value # if applicable
+    another_prop:
+      type: boolean
+      title: Another Prop
+      description: Description of this prop
+slots:
+  # Extract all Twig blocks here as slots
+  example_slot:
+    title: Example Slot
+    description: Description of what this slot is for
+libraryOverrides:
+  # Only include if component has JS/CSS files
+  js:
+    component-name.js: {}
+\`\`\`
 
 Rules:
-- Use proper JSON Schema types (string, boolean, number, array, object)
-- Use "unknown" for types that cannot be determined
+- Use proper YAML format (not JSON)
+- Use valid JSON Schema types in props (string, boolean, number, integer, array, object)
 - Convert Twig blocks to slots in the schema
 - Include all documented properties and their descriptions
-- Only return valid JSON Schema, no additional text
+- Only return valid YAML, no additional text or markdown code blocks
 - Extract component name from filename or comments if available
+- Set status to "stable" by default
+- Only include libraryOverrides if you detect that the component has associated JS files
+- For arrays, include the items type
+- For enums, list all possible values
+- When overriding an existing component:
+  - Start with the original schema as a base
+  - Remove props that are not referenced in the custom template
+  - Add new props that are used in the custom template
+  - Preserve the structure and naming conventions of the original
+  - Update descriptions to reflect customizations
 `;
 
 class JsonSchemaGenerator extends LlmHandler {
@@ -108,30 +107,54 @@ class JsonSchemaGenerator extends LlmHandler {
 
           console.log(`Processing ${file}...`);
 
+          // Check if this is an override of a CivicTheme component
+          const componentPath = path.relative(directoryPath, file);
+          const civicThemeComponentPath = path.join(
+            process.cwd(),
+            'monorepo-drupal/web/themes/contrib/civictheme/components',
+            componentPath.replace('.twig', '.component.yml')
+          );
+
+          let existingSchema = null;
+          try {
+            existingSchema = await fs.readFile(civicThemeComponentPath, 'utf8');
+            console.log(`  Found existing CivicTheme schema for ${path.basename(file)}`);
+          } catch (e) {
+            // No existing schema, this is a new component
+          }
+
+          let userContent;
+          if (existingSchema) {
+            userContent = `This component is overriding an existing CivicTheme component. Here is the original schema:
+
+${existingSchema}
+
+Analyze this custom Twig template and generate an updated Drupal SDC YAML schema:
+- Remove any props that are not used in this custom template
+- Add any new props that are used in this custom template
+- Update descriptions to reflect any changes in functionality
+- Keep the same structure and format as the original
+
+Custom Twig template:
+${templateContent}`.trim();
+          } else {
+            userContent = `Extract the props and blocks from this Twig template and generate a Drupal SDC YAML schema:\n\n${templateContent}`.trim();
+          }
 
           const messages = [
             {
               role: 'user',
-              content: `Extract the props and blocks from this Twig template into JSON:\n\n${templateContent}`.trim(),
+              content: userContent,
             },
           ];
 
-          const jsonSchema = await this.analyze(messages);
+          const yamlSchema = await this.analyze(messages);
 
-          // Validate and parse JSON
-          const parsedJsonSchema = JSON.parse(jsonSchema);
+          // Validate YAML by parsing it
+          yaml.load(yamlSchema);
           
-          // Extract component name and directory
-          const componentName = path.basename(file, '.twig');
-          const componentDirectory = path.dirname(file);
-          
-          // Convert to SDC schema
-          const sdcSchema = await this.convertJsonSchemaToSDCSchema(componentName, componentDirectory, parsedJsonSchema);
-          
-          // Save YAML version only
-          const yamlOutputPath = outputPath.replace('.schema.json', '.component.yml');
-          const yamlContent = yaml.dump(sdcSchema, { lineWidth: -1 });
-          await this.output(yamlContent, yamlOutputPath);
+          // Save YAML directly
+          await this.output(yamlSchema, outputPath);
           
           this.results.successful.push(file);
           console.log(`✓ Successfully processed ${file}`);
