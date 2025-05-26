@@ -16,6 +16,7 @@ $schema: https://git.drupalcode.org/project/drupal/-/raw/10.3.x/core/assets/sche
 name: Component Name
 status: stable
 description: Component description
+replaces: civictheme:component_name # Only include for overridden components
 props:
   type: object
   properties:
@@ -55,6 +56,7 @@ Rules:
 - For enums, list all possible values
 - When overriding an existing component:
   - Start with the original schema as a base
+  - Include replaces property with format: civictheme:component_name (where component_name is the machine name from the filename)
   - Remove props that are not referenced in the custom template
   - Add new props that are used in the custom template
   - Preserve slots ONLY if they exist in the original schema
@@ -167,7 +169,16 @@ ${templateContent}`.trim();
           yamlSchema = this.stripCodeBlocks(yamlSchema);
 
           // Validate YAML by parsing it
-          yaml.load(yamlSchema);
+          const parsedYaml = yaml.load(yamlSchema);
+
+          // If this is an override, ensure replaces property exists
+          if (existingSchema) {
+            const componentName = path.basename(file, '.twig');
+            if (!parsedYaml.replaces) {
+              parsedYaml.replaces = `civictheme:${componentName}`;
+              yamlSchema = yaml.dump(parsedYaml, { lineWidth: -1 });
+            }
+          }
 
           // Save YAML directly
           await this.output(yamlSchema, outputPath);
