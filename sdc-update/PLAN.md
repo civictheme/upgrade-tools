@@ -45,7 +45,7 @@ async function configureApplication() {
             name: 'subthemeDirectory',
             message: chalk.white('Enter the sub-theme directory path:'),
             default: process.env.SUBTHEME_DIRECTORY || '',
-            source: async (_, input) => searchDirectories(input),
+            source: (input) => searchDirectories(input),
             validate: async (input) => {
                 try {
                     const fullPath = input.value;

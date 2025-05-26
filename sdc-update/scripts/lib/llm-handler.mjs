@@ -1,7 +1,7 @@
 import { Anthropic } from '@anthropic-ai/sdk';
 import pThrottle from 'p-throttle';
 
-export class LLMHandler {
+export class LlmHandler {
   constructor(options = {}) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     this.prompt = options.prompt || '';

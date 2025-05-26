@@ -6,7 +6,7 @@
  */
 import fs from 'fs/promises';
 import path from 'path';
-import logger from './logger.js';
+import logger from './logger.mjs';
 
 /**
  * Validates that the provided path is a valid CivicTheme sub-theme directory

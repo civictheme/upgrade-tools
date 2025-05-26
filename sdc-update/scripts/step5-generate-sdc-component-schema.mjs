@@ -2,8 +2,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import { getAllSchemaFiles, getAllComponentFiles } from './lib/components';
-
+import { getAllSchemaFiles, getAllComponentFiles } from './lib/components.mjs';
 /**
  * Converts a JSON Schema object to a Drupal SDC Schema structure
  * @param {string} componentName - The name of the component
@@ -113,7 +112,7 @@ async function convertJsonSchemaToSDCSchema(componentName, componentDirectory, j
 
 // dotenv.config();
 const componentPath = path.join(process.env.CIVICTHEME_UIKIT_PATH, 'components');
-const schemaFiles = await getAllSchemaFiles();
+const schemaFiles = await getAllSchemaFiles(componentPath);
 const components = await getAllComponentFiles(componentPath);
 const componentDirectories = {};
 components.forEach(component => {

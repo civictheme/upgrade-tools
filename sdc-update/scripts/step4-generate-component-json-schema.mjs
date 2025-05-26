@@ -2,8 +2,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 // import dotenv from 'dotenv';
-import { LLMHandler } from './lib/llm-handler';
-import { getAllComponentFiles } from './lib/components';
+import { LlmHandler } from './lib/llm-handler.mjs';
+import { getAllComponentFiles } from './lib/components.mjs';
 
 const SYSTEM_PROMPT = `
 You are a Twig template analyzer. For each Twig template provided:
@@ -59,7 +59,7 @@ Rules:
 - Extract component name from filename or comments if available
 `;
 
-class JsonSchemaGenerator extends LLMHandler {
+class JsonSchemaGenerator extends LlmHandler {
   /**
    * Whether the component has already been processed.
    *

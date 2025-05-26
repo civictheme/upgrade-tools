@@ -7,7 +7,6 @@ Let's break down the implementation into manageable steps, each delivering a spe
 Deliverables:
 - Basic project structure with directories
 - package.json with dependencies
-- ESLint configuration
 - README with project overview
 
 What to Validate:

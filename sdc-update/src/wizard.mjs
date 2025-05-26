@@ -7,9 +7,9 @@
 import { input, confirm, search } from '@inquirer/prompts';
 import { promises as fs } from 'fs';
 import chalk from 'chalk';
-import { saveConfig, loadConfig } from './lib/config.js';
-import { validateSubThemeDirectory, searchDirectories } from './lib/validator.js';
-import logger from './lib/logger.js';
+import { saveConfig, loadConfig } from './lib/config.mjs';
+import { validateSubThemeDirectory, searchDirectories } from './lib/validator.mjs';
+import logger from './lib/logger.mjs';
 
 /**
  * Handles the configuration of the application

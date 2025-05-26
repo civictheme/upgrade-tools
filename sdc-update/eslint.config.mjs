@@ -79,8 +79,8 @@ export default [
       'space-infix-ops': 'warn',
 
       // Node.js specific
-      'n/exports-style': ['error', 'module.exports'],
-      'n/file-extension-in-import': ['error', 'always', { '.js': 'never', '.mjs': 'always' }],
+      'n/exports-style': 'off', // Turn off for ES modules
+      'n/file-extension-in-import': 'off', // Turn off for ES modules
       'n/prefer-global/buffer': ['error', 'always'],
       'n/prefer-global/console': ['error', 'always'],
       'n/prefer-global/process': ['error', 'always'],

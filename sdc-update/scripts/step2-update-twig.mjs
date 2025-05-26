@@ -2,10 +2,16 @@ import { parse, stringify } from 'yaml';
 import fs from 'fs';
 import path from 'path';
 import { globSync } from 'glob';
-const NEW_CIVIC_DIR = `${import.meta.dirname}/monorepo-drupal/web/themes/contrib/civictheme`;
-const SUBTHEME_DIRECTORY = '/Volumes/web/sites/civictheme-monorepo/web/themes/custom/dss';
-const THEME_NAME = path.basename(SUBTHEME_DIRECTORY);
+import {loadConfig} from "../src/lib/config.mjs";
+import logger from "../src/lib/logger.mjs";
 
+
+// Load configuration
+const config = await loadConfig();
+await logger.info(`Loaded configuration for subtheme: ${config.subthemeDirectory}`);
+const NEW_CIVIC_DIR = `${process.cwd()}/monorepo-drupal/web/themes/contrib/civictheme`;
+const SUBTHEME_DIRECTORY = config.subthemeDirectory;
+const THEME_NAME = path.basename(SUBTHEME_DIRECTORY);
 // ------------------------------------------------------------ INFO FILE
 function createInfoYml() {
   const fromYmlContent = fs.readFileSync(`${NEW_CIVIC_DIR}/civictheme_starter_kit/civictheme_starter_kit.info.yml`, 'utf8');

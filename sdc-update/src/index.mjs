@@ -8,10 +8,10 @@ import { select } from '@inquirer/prompts';
 import chalk from 'chalk';
 import fs from 'fs/promises';
 import path from 'path';
-import { validateConfig, loadConfig } from './lib/config.js';
-import { configureApplication } from './wizard.js';
-import { runUpdate } from './update-runner.js';
-import logger from './lib/logger.js';
+import { validateConfig, loadConfig } from './lib/config.mjs';
+import { configureApplication } from './wizard.mjs';
+import { runUpdate } from './update-runner.mjs';
+import logger from './lib/logger.mjs';
 
 /**
  * Show configuration status with emojis
