@@ -8,7 +8,7 @@ import { getAllComponentFiles } from './lib/components.mjs';
 
 const SYSTEM_PROMPT = `
 You are a Drupal Single Directory Components (SDC) analyzer. For each Twig template provided:
-1. Extract all documented variables/props and blocks
+1. Extract all documented variables/props
 2. Return the data in Drupal SDC YAML format with this exact structure:
 
 \`\`\`yaml
@@ -30,7 +30,7 @@ props:
       title: Another Prop
       description: Description of this prop
 slots:
-  # Extract all Twig blocks here as slots
+  # Only include if the original CivicTheme component has slots
   example_slot:
     title: Example Slot
     description: Description of what this slot is for
@@ -43,7 +43,7 @@ libraryOverrides:
 Rules:
 - Use proper YAML format (not JSON)
 - Use valid JSON Schema types in props (string, boolean, number, integer, array, object)
-- Convert Twig blocks to slots in the schema
+- DO NOT convert Twig blocks to slots - only include slots if they exist in the original CivicTheme schema
 - Include all documented properties and their descriptions
 - Only return valid YAML, no additional text or markdown code blocks
 - Extract component name from filename or comments if available
@@ -55,8 +55,12 @@ Rules:
   - Start with the original schema as a base
   - Remove props that are not referenced in the custom template
   - Add new props that are used in the custom template
+  - Preserve slots ONLY if they exist in the original schema
   - Preserve the structure and naming conventions of the original
   - Update descriptions to reflect customizations
+- For new components (not overrides):
+  - Only include props, no slots section
+  - Focus on extracting all variables used in the template
 `;
 
 class JsonSchemaGenerator extends LlmHandler {
