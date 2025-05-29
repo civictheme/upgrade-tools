@@ -10,7 +10,7 @@ This tool automates the process of updating CivicTheme subthemes to use Single D
 
 1. Clone this repository
 2. Install dependencies: `npm install`
-3. Run the application: `npm start`
+3. Run the application: `npm run update-components`
 4. Follow the interactive prompts to configure and run the update
 
 ## 📋 Prerequisites
@@ -47,7 +47,7 @@ The update process consists of the following steps:
 Run the interactive update tool:
 
 ```bash
-npm run update-storybook
+npm run update-components
 ```
 
 ## ⚠️ Important Warnings
