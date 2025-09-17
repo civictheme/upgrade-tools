@@ -34,7 +34,7 @@ const UPDATE_STEPS = [
     id: 'step3',
     name: 'Generate Component YML from Twig templates',
     emoji: '🧠',
-    script: './scripts/step4-generate-component-json-schema.mjs',
+    script: './scripts/step4-generate-component-schema.mjs',
     description: 'Uses Claude AI to analyze Twig templates and generate JSON schema which is then converted to YML',
     detail: 'Analyzes component templates with Claude AI to create JSON schemas that define component properties'
   },
